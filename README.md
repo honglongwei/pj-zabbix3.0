@@ -387,12 +387,14 @@ Include=/etc/zabbix/zabbix_agentd.d/
 
 #### 自动注册和自动发现
 * 区别
-```cmd
-自动发现： 
+1. 自动发现： 
   适用于提供相同服务的Server群组，因为自动发现是批量添加Discovery Host的，你可以让所有主机链接同一个模板，并且让他们提供相同的服务。没错，如果你学过Shell，并且能写出批量部署服务的脚本，那么这个自动发现再适合你不过了。
 
-自动注册： 
-  自动注册呢，它是比较灵活的，根据HostMetadata的value来匹配规则，并且通过不同的值来执行不同的操作。 
-  也就是说，如果是普通Server，你只要把value设置为Linux，并且让它链接普通的模板 
-如果是MysqlServer，你可以把value设置为Mysql，并且让它链接Mysql和普通的模板。
-``` 
+2. 自动注册： 
+  自动注册呢，它是比较灵活的，根据HostMetadata的value来匹配规则，并且通过不同的值来执行不同的操作。 <br>
+  也就是说，如果是普通Server，你只要把value设置为Linux，并且让它链接普通的模板 <br>
+  如果是MysqlServer，你可以把value设置为Mysql，并且让它链接Mysql和普通的模板。<br>
+
+* 自动发现
+1. 主机自动发现
+2. 端口自动发现
