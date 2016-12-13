@@ -397,4 +397,10 @@ Include=/etc/zabbix/zabbix_agentd.d/
 
 * 自动发现
   1.	 主机自动发现
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host1.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host2.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host3.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host4.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host5.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host6.jpg) <br>
   2.	 端口自动发现
