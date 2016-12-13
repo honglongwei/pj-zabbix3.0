@@ -396,5 +396,5 @@ Include=/etc/zabbix/zabbix_agentd.d/
   	 如果是MysqlServer，你可以把value设置为Mysql，并且让它链接Mysql和普通的模板。<br>
 
 * 自动发现
-  1.	主机自动发现
+  1.	 主机自动发现
   2.	 端口自动发现
