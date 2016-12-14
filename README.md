@@ -1,6 +1,6 @@
 # Zabbix V3.0
 
-### zabbix v3.0安装部署
+### zabbix v3.0安装部署及使用
 
 #### 关于zabbix及相关服务软件版本
 
@@ -421,3 +421,242 @@ $ cat /etc/zabbix/zabbix_scripts/dport_check.d/tes.conf
 ![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_port3.jpg) <br>
 ![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_port4.jpg) <br>
 ![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_port5.jpg) 
+
+* 自动注册
+(跟自动发现异曲同工，这里就不做详情说明)
+
+
+#### 微信告警
+* 微信企业号注册与使用
+企业号注册：https://qy.weixin.qq.com/
+
+* 企业号使用教程
+1. 通讯录添加企业员工
+登录新建的企业号，通过提前把企业成员信息添加到组织或者部门，需要填写手机号、微信号或邮箱，通过这样方式让别人扫码关注企业公众号，为了后面企业号推送消息给企业成员。<br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn1.jpg) <br>
+
+2. 新增账户，填写信息<br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn2jpg) <br>
+
+* 应用中心创建应用
+可见范围还可以添加不同管理组，接受同一个应用推送的消息<br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn3jpg) <br>
+
+* 给部门设置管理员
+设置--->功能设置---->权限管理---->新建管理组<br>
+管理员需要事先关注企业号，并且设置好邮箱地址<br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn4jpg) <br>
+```cmd
+#需要确定管理员有权限使用应用发送消息，需要管理员的CorpID和Sercrt。（重要）
+#准备事项：
+微信企业号
+企业号已经被部门成员关注
+企业号有一个可以发送消息的应用（test-msg），一个授权管理员（test-msg），可以使用应用给成员发送消息
+#需要先添加管理员信息，然后使其关注企业号
+#需要得到的信息
+成员账号
+组织部门ID
+应用ID
+CorpID和Secret
+```
+
+* 微信接口调用
+调用微信接口需要一个调用接口的凭证：access_token<br>
+通过CorpID和Secret可以获得access_token<br>
+微信企业号接口调试地址： http://qydev.weixin.qq.com/debug<br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn5jpg) <br>
+
+* 脚本调用原理
+设置脚本执行路径，编辑zabbix_server.conf文件，添加一行<br>
+AlertScriptsPath=/opt/zabbix/share/zabbix/alertscripts<br>
+1. Shell脚本使用
+```cmd
+获取 AccessToken
+
+curl -s -G url
+传送凭证调用企业号接口
+
+curl --data  url
+[root@zabbix alertscripts]# cat wechat.sh
+#!/bin/bash
+#########################################################################
+# File Name: wechat.sh
+#########################################################################
+# Functions: send messages to wechat app
+# set variables
+CropID='xxxxxx'
+Secret='M3FMhnFh8nTI6SxLAEbbLLZaj-1BpZIyqkJRskeMMUXObGx4mfQsAg7Jw-nUMXe9'
+GURL="https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=$CropID&corpsecret=$Secret"
+#get acccess_token
+Gtoken=$(/usr/bin/curl -s -G $GURL | awk -F\" '{print $4}')
+PURL="https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=$Gtoken"
+#
+function body() {
+local int AppID=10                        #企业号中的应用id
+local UserID="touser"                        #部门成员id，zabbix中定义的微信接收者
+local PartyID=8                           #部门id，定义了范围，组内成员都可接收到消息
+local Msg=$(echo "$@" | cut -d" " -f3-)   #过滤出zabbix传递的第三个参数
+printf '{\n'
+printf '\t"touser": "'"$UserID"\"",\n"
+printf '\t"toparty": "'"$PartyID"\"",\n"
+printf '\t"msgtype": "text",\n'
+printf '\t"agentid": "'" $AppID "\"",\n"
+printf '\t"text": {\n'
+printf '\t\t"content": "'"$Msg"\""\n"
+printf '\t},\n'
+printf '\t"safe":"0"\n'
+printf '}\n'
+}
+/usr/bin/curl --data-ascii "$(body $! $2 $3)" $PURL
+#http://qydev.weixin.qq.com/wiki/index.php?title=消息类型及数据格式
+#测试：
+
+bash wechat.sh test hello.world!
+{"errcode":0,"errmsg":"ok","invaliduser":"all user invalid"}
+```
+2. python脚本
+安装simplejson<br>
+```cmd
+$ wget https://pypi.python.org/packages/f0/07/26b519e6ebb03c2a74989f7571e6ae6b82e9d7d81b8de6fcdbfc643c7b58/simplejson-3.8.2.tar.gz
+$ tar zxvf simplejson-3.8.2.tar.gz && cd simplejson-3.8.2
+$ python setup.py build
+$ python setup.py install
+```
+下载wechat.py脚本<br>
+```cmd
+$ git clone https://github.com/X-Mars/Zabbix-Alert-WeChat.git
+$ cp Zabbix-Alert-WeChat/wechat.py /opt/zabbix/share/zabbix/alertscripts/
+$ chmod +x wechat.py && chown zabbix:zabbix wechat.py
+```
+脚本修改<br>
+```cmd
+#!/usr/bin/python
+#_*_coding:utf-8 _*_
+ 
+import urllib,urllib2
+import json
+import sys
+import simplejson
+ 
+def gettoken(corpid,corpsecret):
+	gettoken_url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=' + corpid + '&corpsecret=' + corpsecret
+	print  gettoken_url
+	try:
+		token_file = urllib2.urlopen(gettoken_url)
+	except urllib2.HTTPError as e:
+		print e.code
+		print e.read().decode("utf8")
+		sys.exit()
+	token_data = token_file.read().decode('utf-8')
+	token_json = json.loads(token_data)
+	token_json.keys()
+	token = token_json['access_token']
+	return token
+ 
+def senddata(access_token,user,subject,content):
+	send_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=' + access_token
+	send_values = {
+								"touser":"touser",      #企业号中的用户帐号，在zabbix用户Media中配置，如果配置不正常，将按部门发送。
+								"toparty":"8",          #企业号中的部门id。
+								"msgtype":"text",       #消息类型。
+								"agentid":"10",         #企业号中的应用id。
+								"text":{
+								"content":subject + '\n' + content
+								},
+							"safe":"0"
+						}
+	#    send_data = json.dumps(send_values, ensure_ascii=False)
+	send_data = simplejson.dumps(send_values, ensure_ascii=False).encode('utf-8')
+	send_request = urllib2.Request(send_url, send_data)
+	response = json.loads(urllib2.urlopen(send_request).read())
+	print str(response)
+
+if __name__ == '__main__':
+	user = str(sys.argv[1])     #zabbix传过来的第一个参数
+	subject = str(sys.argv[2])  #zabbix传过来的第二个参数
+	content = str(sys.argv[3])  #zabbix传过来的第三个参数
+	corpid =  'xxxxxx'   #CorpID是企业号的标识
+	corpsecret = 'M3FMhnFh8nTI6SxLAEbbLLZaj-1BpZIyqkJRskeMMUXObGx4mfQsAg7Jw-nUMXe9'  #corpsecretSecret是管理组凭证密钥
+	accesstoken = gettoken(corpid,corpsecret)
+	senddata(accesstoken,user,subject,content)
+```
+脚本测试<br>
+28,29,31行分别改为用户账号，部门ID，和应用ID<br>
+48,49 改为CropID和Secret<br>
+文中使用的用户为，test-msg,部门iD为8，应用ID为10.<br>
+```cmd
+$ ./wechat.py test-msg test hello
+https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=wx11ac451376ae0e98&corpsecret=M3FMhnFh8nTI6SxLAEbbLLZaj-1BpZIyqkJRskeMMUXObGx4mfQsAg7Jw-nUMXe9
+{u'invaliduser': u'all user invalid', u'errcode': 0, u'errmsg': u'ok'}
+```
+
+
+* 脚本路径设置
+将脚本放到zabbix默认执行的路径下<br>
+```cmd
+$ mv wechat.php wechat.sh /opt/zabbix/share/zabbix/alertscripts/
+$ chown zabbix:zabbix /opt/zabbix/share/zabbix/alertscripts/wechat.php
+$ chmod +x /opt/zabbix/share/zabbix/alertscripts/wechat.php
+或
+$ chown zabbix:zabbix /opt/zabbix/share/zabbix/alertscripts/wechat.sh
+$ chmod +x /opt/zabbix/share/zabbix/alertscripts/wechat.sh
+```
+
+设置脚本的启动用户为zabbix，并给脚本可执行权限<br>
+修改zabbix_server.conf文件，添加脚本执行目录<br>
+```cmd
+AlertScriptsPath=/opt/zabbix/share/zabbix/alertscripts
+```
+修改完成重启zabbix_server<br>
+```cmd
+$ /etc/init.d/zabbix_server restart
+```
+
+
+* Zabbix-web前端设置
+1. 设置通知媒介
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn6jpg) <br>
+
+2. 创建用户
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn7jpg) <br>
+
+3. 创建触发动作及发送内容
+告警主题<br>：
+
+Default subject：{TRIGGER.STATUS}: {TRIGGER.NAME}<br>
+ 
+Trigger host:{HOSTNAME}<br>
+Trigger ip:{HOST.IP}<br>
+Trigger time:{EVENT.DATE}:{EVENT.TIME}<br>
+Trigger: {TRIGGER.NAME}<br>
+Trigger status: {TRIGGER.STATUS}<br>
+Trigger severity: {TRIGGER.SEVERITY}<br>
+Trigger URL: {TRIGGER.URL}<br>
+ 
+Item values:<br>
+{ITEM.NAME1} ({HOST.NAME1}:{ITEM.KEY1}): {ITEM.VALUE1}<br>
+{ITEM.NAME2} ({HOST.NAME2}:{ITEM.KEY2}): {ITEM.VALUE2}<br>
+ 
+Original event ID: {EVENT.ID}<br>
+恢复主题：<br>
+
+Default subject：{TRIGGER.STATUS}: {TRIGGER.NAME}<br>
+Trigger host:{HOSTNAME}<br>
+Trigger ip:{HOST.IP}<br>
+Trigger time:{EVENT.DATE}:{EVENT.TIME}<br>
+Trigger: {TRIGGER.NAME}<br>
+Trigger status: {TRIGGER.STATUS}<br>
+Trigger severity: {TRIGGER.SEVERITY}<br>
+Trigger URL: {TRIGGER.URL}<br>
+ 
+Item values:<br>
+{ITEM.NAME1} ({HOST.NAME1}:{ITEM.KEY1}): {ITEM.VALUE1}<br>
+{ITEM.NAME2} ({HOST.NAME2}:{ITEM.KEY2}): {ITEM.VALUE2}<br>
+Original event ID: {EVENT.ID}<br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn8jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn9jpg) <br>
+
+* 测试微信告警发送
+主动触发相关trigger告警，查看微信发送状态<br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn10jpg)
+
