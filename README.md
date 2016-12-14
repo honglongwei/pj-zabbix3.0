@@ -393,14 +393,31 @@ Include=/etc/zabbix/zabbix_agentd.d/
   2.	 自动注册： 
   	 自动注册呢，它是比较灵活的，根据HostMetadata的value来匹配规则，并且通过不同的值来执行不同的操作。 <br>
   	 也就是说，如果是普通Server，你只要把value设置为Linux，并且让它链接普通的模板 <br>
-  	 如果是MysqlServer，你可以把value设置为Mysql，并且让它链接Mysql和普通的模板。<br>
+  	 如果是MysqlServer，你可以把value设置为Mysql，并且让它链接Mysql和普通的模板。
 
 * 自动发现
   1.	 主机自动发现
+
 ![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host1.jpg) <br>
 ![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host2.jpg) <br>
 ![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host3.jpg) <br>
 ![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host4.jpg) <br>
 ![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host5.jpg) <br>
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host6.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_host6.jpg) 
+
   2.	 端口自动发现
+  
+   	 先创建自动发现脚本：vim /etc/zabbix/zabbix_scripts/disc_port.sh <br>
+   	 自定义key值：vim /etc/zabbix/zabbix_agentd.d/disc_port.conf <br>
+   	 添加需要自动发现的端口描述文件：vim /etc/zabbix/zabbix_scripts/dport_check.d/tes.conf
+```cmd
+$ cat /etc/zabbix/zabbix_scripts/dport_check.d/tes.conf
+127.0.0.1:12066:docker_tes
+//#IP:#PORT:#DESC
+```
+  	  
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_port1.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_port2.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_port3.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_port4.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/disc_port5.jpg) 
