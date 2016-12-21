@@ -436,16 +436,16 @@ $ cat /etc/zabbix/zabbix_scripts/dport_check.d/tes.conf
 ![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn1.jpg) <br>
 
 2. 新增账户，填写信息<br>
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn2jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn2.jpg) <br>
 
 * 应用中心创建应用
 可见范围还可以添加不同管理组，接受同一个应用推送的消息<br>
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn3jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn3.jpg) <br>
 
 * 给部门设置管理员
 设置--->功能设置---->权限管理---->新建管理组<br>
 管理员需要事先关注企业号，并且设置好邮箱地址<br>
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn4jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn4.jpg) <br>
 ```cmd
 #需要确定管理员有权限使用应用发送消息，需要管理员的CorpID和Sercrt。（重要）
 #准备事项：
@@ -464,7 +464,7 @@ CorpID和Secret
 调用微信接口需要一个调用接口的凭证：access_token<br>
 通过CorpID和Secret可以获得access_token<br>
 微信企业号接口调试地址： http://qydev.weixin.qq.com/debug<br>
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn5jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn5.jpg) <br>
 
 * 脚本调用原理
 设置脚本执行路径，编辑zabbix_server.conf文件，添加一行<br>
@@ -615,10 +615,10 @@ $ /etc/init.d/zabbix_server restart
 
 * Zabbix-web前端设置
 1. 设置通知媒介
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn6jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn6.jpg) <br>
 
 2. 创建用户
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn7jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn7.jpg) <br>
 
 3. 创建触发动作及发送内容
 告警主题<br>：
@@ -653,10 +653,10 @@ Item values:<br>
 {ITEM.NAME1} ({HOST.NAME1}:{ITEM.KEY1}): {ITEM.VALUE1}<br>
 {ITEM.NAME2} ({HOST.NAME2}:{ITEM.KEY2}): {ITEM.VALUE2}<br>
 Original event ID: {EVENT.ID}<br>
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn8jpg) <br>
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn9jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn8.jpg) <br>
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn9.jpg) <br>
 
 * 测试微信告警发送
 主动触发相关trigger告警，查看微信发送状态<br>
-![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn10jpg)
+![Image](https://github.com/honglongwei/pj-zabbix3.0/blob/master/images/warn10.jpg)
 
