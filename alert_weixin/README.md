@@ -8,10 +8,10 @@
 ### 配置zabbix-server
 将weixin.py放到/usr/local/zabbix/alertscripts/目录下<br>
 ```python
-$ vim zabbix_server.conf
+$vim zabbix_server.conf
  AlertScriptsPath=/usr/local/zabbix/alertscripts
-$ cd /usr/local/zabbix/alertscripts/weixin.py
-$ cat weixin.py
+$cd /usr/local/zabbix/alertscripts/weixin.py
+$cat weixin.py
 
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -91,9 +91,9 @@ if __name__ == '__main__':
         a = WeChat('https://qyapi.weixin.qq.com/cgi-bin')
         a.sendMessage(sys.argv[1],sys.argv[3])
 
-$ chmod +x /usr/local/zabbix/alertscripts/weixin.py
-$ chown zabbix:zabbix /usr/local/zabbix/alertscripts/weixin.py
-$ python zabbix test test  //$1联系人 $2主题  $3正文
+$chmod +x /usr/local/zabbix/alertscripts/weixin.py
+$chown zabbix:zabbix /usr/local/zabbix/alertscripts/weixin.py
+$python zabbix test test  //$1联系人 $2主题  $3正文
  {u'errcode': 0, u'errmsg': u'ok'}
 ```
 
